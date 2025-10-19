@@ -54,8 +54,6 @@ return require('packer').startup(function(use)
         },
     }
     
-    -- Terminal integration
-    
     -- Lualine (status line)
     use {
         'nvim-lualine/lualine.nvim',
@@ -80,5 +78,12 @@ return require('packer').startup(function(use)
     -- Git signs in the gutter
     use {
         'lewis6991/gitsigns.nvim',
+    }
+    use {
+        'stevearc/conform.nvim',
+    }
+    -- Formatter
+    use {
+        'stevearc/conform.nvim',
     }
 end)

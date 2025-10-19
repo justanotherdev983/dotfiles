@@ -15,6 +15,11 @@ vim.keymap.set('n', '<C-k>', '<C-w>k', { desc = 'Move to window above' })
 vim.keymap.set('n', '<C-l>', '<C-w>l', { desc = 'Move to window right' })
 vim.keymap.set('n', '<C-h>', '<C-w>h', { desc = 'Move to window left' })
 
+-- Format buffer
+vim.keymap.set("n", "<leader>f", function()
+  require("conform").format({ async = true, lsp_fallback = true })
+end, { desc = "Format buffer" })
+
 -- Set colorscheme
 --vim.cmd("colorscheme onedark")
 --vim.cmd("colorscheme kanagawa")
