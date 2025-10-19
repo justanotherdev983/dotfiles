@@ -1,5 +1,4 @@
 -- .config/nvim/after/plugin/lsp.lua
-local lsp = require('lspconfig')
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
 -- Setup Mason to automatically install LSP servers
@@ -7,7 +6,7 @@ require('mason').setup()
 require('mason-lspconfig').setup({
     ensure_installed = { 
         "lua_ls",       -- Lua
-        "ts_ls", -- TypeScript/JavaScript (using correct name)
+        "ts_ls",        -- TypeScript/JavaScript
         "pyright",      -- Python
         "clangd",       -- C/C++
         "jsonls",       -- JSON
@@ -19,38 +18,80 @@ require('mason-lspconfig').setup({
     automatic_installation = true,
 })
 
--- Configure each language server
-lsp.lua_ls.setup {
+-- Configure Lua language server
+vim.lsp.config('lua_ls', {
+    cmd = { 'lua-language-server' },
+    filetypes = { 'lua' },
+    root_markers = { '.luarc.json', '.luarc.jsonc', '.luacheckrc', '.stylua.toml', 'stylua.toml', 'selene.toml', 'selene.yml', '.git' },
     capabilities = capabilities,
     settings = {
         Lua = {
             diagnostics = {
-                globals = { 'vim' } -- Recognize vim as a global
+                globals = { 'vim' }
             }
         }
     }
+})
+
+-- Configure other language servers
+local server_configs = {
+    pyright = {
+        cmd = { 'pyright-langserver', '--stdio' },
+        filetypes = { 'python' },
+        root_markers = { 'pyproject.toml', 'setup.py', 'setup.cfg', 'requirements.txt', 'Pipfile', 'pyrightconfig.json', '.git' },
+    },
+    clangd = {
+        cmd = { 'clangd' },
+        filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda', 'proto' },
+        root_markers = { '.clangd', '.clang-tidy', '.clang-format', 'compile_commands.json', 'compile_flags.txt', 'configure.ac', '.git' },
+    },
+    jsonls = {
+        cmd = { 'vscode-json-language-server', '--stdio' },
+        filetypes = { 'json', 'jsonc' },
+        root_markers = { '.git' },
+    },
+    html = {
+        cmd = { 'vscode-html-language-server', '--stdio' },
+        filetypes = { 'html', 'templ' },
+        root_markers = { '.git' },
+    },
+    cssls = {
+        cmd = { 'vscode-css-language-server', '--stdio' },
+        filetypes = { 'css', 'scss', 'less' },
+        root_markers = { '.git' },
+    },
+    gopls = {
+        cmd = { 'gopls' },
+        filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
+        root_markers = { 'go.work', 'go.mod', '.git' },
+    },
+    rust_analyzer = {
+        cmd = { 'rust-analyzer' },
+        filetypes = { 'rust' },
+        root_markers = { 'Cargo.toml', 'rust-project.json', '.git' },
+    },
+    ts_ls = {
+        cmd = { 'typescript-language-server', '--stdio' },
+        filetypes = { 'javascript', 'javascriptreact', 'javascript.jsx', 'typescript', 'typescriptreact', 'typescript.tsx' },
+        root_markers = { 'tsconfig.json', 'jsconfig.json', 'package.json', '.git' },
+    },
 }
 
-
--- Note: tsserver is deprecated but still works. Use typescript-language-server in mason install list.
-
--- Setup other common servers with default config
-local servers = { 'pyright', 'clangd', 'jsonls', 'html', 'cssls', 'gopls', 'rust_analyzer' }
-for _, server in ipairs(servers) do
-    lsp[server].setup {
-        capabilities = capabilities,
-    }
+for server, config in pairs(server_configs) do
+    config.capabilities = capabilities
+    vim.lsp.config(server, config)
 end
+
+-- Enable all configured servers
+vim.lsp.enable({ 'lua_ls', 'pyright', 'clangd', 'jsonls', 'html', 'cssls', 'gopls', 'rust_analyzer', 'ts_ls' })
 
 -- Global LSP keymappings
 vim.api.nvim_create_autocmd('LspAttach', {
     group = vim.api.nvim_create_augroup('UserLspConfig', {}),
     callback = function(ev)
         local opts = { buffer = ev.buf }
-
         -- Enable completion triggered by <c-x><c-o>
         vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
-
         -- Buffer local mappings
         vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
         vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
