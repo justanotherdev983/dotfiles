@@ -17,7 +17,7 @@ vim.keymap.set('n', '<C-h>', '<C-w>h', { desc = 'Move to window left' })
 
 -- Format buffer
 vim.keymap.set("n", "<leader>f", function()
-  require("conform").format({ async = true, lsp_fallback = true })
+    require("conform").format({ async = true, lsp_fallback = true })
 end, { desc = "Format buffer" })
 
 -- Set colorscheme
@@ -25,3 +25,9 @@ end, { desc = "Format buffer" })
 --vim.cmd("colorscheme kanagawa")
 vim.cmd("colorscheme rose-pine")
 --vim.cmd("colorscheme kanagawa-paper")
+--vim.cmd("colorscheme naysayer")
+--vim.cmd("colorscheme everforest")
+--vim.cmd("colorscheme lackluster-mint")
+--vim.cmd("colorscheme miasma")
+--vim.cmd("colorscheme darkvoid")
+--vim.cmd("colorscheme lackluster")
