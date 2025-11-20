@@ -4,16 +4,17 @@ local capabilities = require('cmp_nvim_lsp').default_capabilities()
 -- Setup Mason to automatically install LSP servers
 require('mason').setup()
 require('mason-lspconfig').setup({
-    ensure_installed = { 
-        "lua_ls",       -- Lua
-        "ts_ls",        -- TypeScript/JavaScript
-        "pyright",      -- Python
-        "clangd",       -- C/C++
-        "jsonls",       -- JSON
-        "html",         -- HTML
-        "cssls",        -- CSS
-        "gopls",        -- Go
-        "rust_analyzer" -- Rust
+    ensure_installed = {
+        "lua_ls",        -- Lua
+        "ts_ls",         -- TypeScript/JavaScript
+        "pyright",       -- Python
+        "clangd",        -- C/C++
+        "jsonls",        -- JSON
+        "html",          -- HTML
+        "cssls",         -- CSS
+        "gopls",         -- Go
+        "rust_analyzer", -- Rust
+        "tinymist",      -- Typst
     },
     automatic_installation = true,
 })
@@ -83,7 +84,7 @@ for server, config in pairs(server_configs) do
 end
 
 -- Enable all configured servers
-vim.lsp.enable({ 'lua_ls', 'pyright', 'clangd', 'jsonls', 'html', 'cssls', 'gopls', 'rust_analyzer', 'ts_ls' })
+vim.lsp.enable({ 'lua_ls', 'pyright', 'clangd', 'jsonls', 'html', 'cssls', 'gopls', 'rust_analyzer', 'ts_ls', 'tinymist' })
 
 -- Global LSP keymappings
 vim.api.nvim_create_autocmd('LspAttach', {
