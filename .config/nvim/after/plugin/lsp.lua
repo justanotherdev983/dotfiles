@@ -42,9 +42,36 @@ local server_configs = {
         root_markers = { 'pyproject.toml', 'setup.py', 'setup.cfg', 'requirements.txt', 'Pipfile', 'pyrightconfig.json', '.git' },
     },
     clangd = {
-        cmd = { 'clangd' },
+        cmd = {
+            'clangd',
+            '--background-index',
+            '--clang-tidy',
+            '--header-insertion=iwyu',
+            '--completion-style=detailed',
+            '--function-arg-placeholders',
+            '--fallback-style=llvm'
+        },
         filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda', 'proto' },
         root_markers = { '.clangd', '.clang-tidy', '.clang-format', 'compile_commands.json', 'compile_flags.txt', 'configure.ac', '.git' },
+        init_options = {
+            clangdFileStatus = true,
+            usePlaceholders = true,
+            completeUnimported = true,
+            semanticHighlighting = true,
+        },
+        -- This function runs when clangd attaches to the buffer
+        on_attach = function(client, bufnr)
+            local opts = { buffer = bufnr, remap = false }
+
+            -- Keybinds specifically for C++
+            vim.keymap.set("n", "<leader>ch", "<cmd>ClangdSwitchSourceHeader<cr>", opts) -- Switch Source/Header
+
+            -- Enable Inlay Hints (Variable types, parameter names inline)
+            -- Only works in Neovim 0.10+
+            if vim.lsp.inlay_hint then
+                vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+            end
+        end
     },
     jsonls = {
         cmd = { 'vscode-json-language-server', '--stdio' },
@@ -91,8 +118,16 @@ vim.api.nvim_create_autocmd('LspAttach', {
     group = vim.api.nvim_create_augroup('UserLspConfig', {}),
     callback = function(ev)
         local opts = { buffer = ev.buf }
+        local client = vim.lsp.get_client_by_id(ev.data.client_id)
+
+        -- Enable inlay hints if supported
+        if client and client.server_capabilities.inlayHintProvider then
+            vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
+        end
+
         -- Enable completion triggered by <c-x><c-o>
         vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+
         -- Buffer local mappings
         vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
         vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
@@ -111,6 +146,11 @@ vim.api.nvim_create_autocmd('LspAttach', {
         vim.keymap.set('n', '<leader>f', function()
             vim.lsp.buf.format { async = true }
         end, opts)
+
+        -- Toggle inlay hints
+        vim.keymap.set('n', '<leader>ih', function()
+            vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = ev.buf }), { bufnr = ev.buf })
+        end, opts)
     end,
 })
 
@@ -122,9 +162,9 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
 
 -- Configure diagnostics display
 vim.diagnostic.config({
-    virtual_text = true,
+    virtual_text = false,
     signs = true,
-    underline = true,
+    underline = false,
     update_in_insert = false,
     severity_sort = true,
     float = {
