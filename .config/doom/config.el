@@ -268,7 +268,7 @@
   ;; Performance for huge repos
   (setq magit-refresh-status-buffer nil
         magit-revision-insert-related-refs nil)
-  (add-to-list 'magit-commit-arguments "--signoff"))
+  (add-to-list 'magit-commit-arguments "--signoff")
   
   ;; Kernel commit style
   (setq git-commit-summary-max-length 50
